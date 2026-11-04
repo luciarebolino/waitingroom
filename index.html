@@ -37,6 +37,7 @@
     }
     .message h1 { margin: 0; font-size: 1.8cqw; font-weight: 400; color: #e8eaed; letter-spacing: 0; }
     .message p { margin: 0; font-size: 1.05cqw; color: #9aa0a6; }
+    .message .serif { font-family: "Times New Roman", Times, serif; }
   </style>
 </head>
 <body>
@@ -91,6 +92,26 @@
       g.restore()
     }
 
+    /* the welcome, word by word: with every bounce one more word turns Times New Roman; once all have, they all
+       go back to Google Sans and it begins again */
+    const words = []
+    document.querySelectorAll('.message h1, .message p').forEach((line) => {
+      const text = line.textContent.trim().split(/\s+/)
+      line.textContent = ''
+      text.forEach((word, i) => {
+        const span = document.createElement('span')
+        span.textContent = word
+        line.appendChild(span)
+        if (i < text.length - 1) line.appendChild(document.createTextNode(' '))
+        words.push(span)
+      })
+    })
+    function bounced () {
+      const sans = words.filter((span) => !span.classList.contains('serif'))
+      if (!sans.length) { words.forEach((span) => span.classList.remove('serif')); return }
+      sans[Math.floor(Math.random() * sans.length)].classList.add('serif')
+    }
+
     let last = performance.now()
     function frame (now) {
       const dt = Math.min(0.05, (now - last) / 1000)
@@ -99,10 +120,10 @@
       x += vx * step
       y += vy * step
       ball.turn += step / r
-      if (x < r) { x = r; vx = Math.abs(vx) }
-      if (x > w - r) { x = w - r; vx = -Math.abs(vx) }
-      if (y < r) { y = r; vy = Math.abs(vy) }
-      if (y > h - r) { y = h - r; vy = -Math.abs(vy) }
+      if (x < r) { x = r; vx = Math.abs(vx); bounced() }
+      if (x > w - r) { x = w - r; vx = -Math.abs(vx); bounced() }
+      if (y < r) { y = r; vy = Math.abs(vy); bounced() }
+      if (y > h - r) { y = h - r; vy = -Math.abs(vy); bounced() }
       g.clearRect(0, 0, w, h)
       drawBall()
       requestAnimationFrame(frame)
