@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>waiting room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400&display=swap">
   <style>
     html, body { margin: 0; height: 100%; background: #05ff9b; }
     body { display: grid; place-items: center; }
@@ -25,14 +28,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.6cqw;
+      gap: 0.45cqw;
       text-align: center;
       pointer-events: none;
-      font-family: "Google Sans", "Google Sans Text", Roboto, Arial, sans-serif;
+      z-index: 2; /* above the ball */
+      font-family: "Google Sans", Roboto, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
-    .message h1 { margin: 0; font-size: 2.3cqw; font-weight: 400; color: #e8eaed; letter-spacing: 0; }
-    .message p { margin: 0; font-size: 1.3cqw; color: #9aa0a6; }
+    .message h1 { margin: 0; font-size: 1.8cqw; font-weight: 400; color: #e8eaed; letter-spacing: 0; }
+    .message p { margin: 0; font-size: 1.05cqw; color: #9aa0a6; }
   </style>
 </head>
 <body>
