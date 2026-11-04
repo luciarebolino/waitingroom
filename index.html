@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>waiting room</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #fff; }
+    body { display: grid; place-items: center; }
+    /* the screenshot, with the animation laid exactly over its dark video rectangle */
+    .shot { position: relative; width: min(100vw, 1210px); aspect-ratio: 2420 / 1588; }
+    .shot img { display: block; width: 100%; height: 100%; }
+    canvas {
+      position: absolute;
+      /* the rectangle in the 2420 × 1588 image: x 187–1444, y 416–1123 */
+      left: calc(187 / 2420 * 100%);
+      top: calc(416 / 1588 * 100%);
+      width: calc(1257 / 2420 * 100%);
+      height: calc(707 / 1588 * 100%);
+      border-radius: 1.6% / 2.9%;
+    }
+  </style>
+</head>
+<body>
+  <div class="shot">
+    <img src="waitingroom.png" alt="">
+    <canvas id="room"></canvas>
+  </div>
+  <script>
+    /* a ball, half lime half cyan, rolling and bouncing off the edges of the dark rectangle, never slowing */
+    const BALL = { lime: '#81fd53', cyan: '#50eefd', size: 0.045, speed: 0.32 } // size: of the rectangle's width; speed: widths a second
+    const canvas = document.getElementById('room')
+    const g = canvas.getContext('2d')
+    let w = 0
+    let h = 0
+    let r = 0
+    const ball = { x: 0.3, y: 0.4, vx: 0.8, vy: 0.6, turn: 0 }
+    function size () {
+      const box = canvas.getBoundingClientRect()
+      const dpr = window.devicePixelRatio || 1
+      w = box.width
+      h = box.height
+      canvas.width = w * dpr
+      canvas.height = h * dpr
+      g.setTransform(dpr, 0, 0, dpr, 0, 0)
+      r = w * BALL.size / 2
+    }
+    size()
+    addEventListener('resize', size)
+    let x = w * ball.x
+    let y = h * ball.y
+    const n = Math.hypot(ball.vx, ball.vy)
+    let vx = ball.vx / n
+    let vy = ball.vy / n
+
+    // the ball turning as it rolls, drawn as the moon's phases are: one half of each colour, the line between
+    // them sweeping across as it turns, square to the way it goes
+    function drawBall () {
+      g.save()
+      g.translate(x, y)
+      g.rotate(Math.atan2(vy, vx))
+      const p = ball.turn % (Math.PI * 2)
+      const c = Math.cos(p)
+      g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.fillStyle = BALL.lime; g.fill()
+      g.beginPath(); g.arc(0, 0, r, -Math.PI / 2, Math.PI / 2, Math.sin(p) < 0); g.closePath(); g.fillStyle = BALL.cyan; g.fill()
+      g.beginPath(); g.ellipse(0, 0, r * Math.abs(c), r, 0, 0, Math.PI * 2)
+      g.fillStyle = c > 0 ? BALL.cyan : BALL.lime
+      g.fill()
+      g.restore()
+    }
+
+    let last = performance.now()
+    function frame (now) {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+      const step = BALL.speed * w * dt
+      x += vx * step
+      y += vy * step
+      ball.turn += step / r
+      if (x < r) { x = r; vx = Math.abs(vx) }
+      if (x > w - r) { x = w - r; vx = -Math.abs(vx) }
+      if (y < r) { y = r; vy = Math.abs(vy) }
+      if (y > h - r) { y = h - r; vy = -Math.abs(vy) }
+      g.clearRect(0, 0, w, h)
+      drawBall()
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+  </script>
+</body>
+</html>
